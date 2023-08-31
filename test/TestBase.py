@@ -1,3 +1,4 @@
+import logging
 import pathlib
 import typing
 import unittest
@@ -133,6 +134,16 @@ class WorldTestBase(unittest.TestCase):
         self.multiworld.set_default_common_options()
         for step in gen_steps:
             call_all(self.multiworld, step)
+
+    def run(self, result: typing.Optional[unittest.TestResult] = None) -> typing.Optional[unittest.TestResult]:
+        result = super().run(result)
+
+        if result and result.failures and result.failures[-1][0] is self and hasattr(self, "multiworld"):
+            logging.error(f"{self.id()}: test failed using seed {self.multiworld.seed}")
+        elif result and result.errors and result.errors[-1][0] is self and hasattr(self, "multiworld"):
+            logging.error(f"{self.id()}: test error using seed {self.multiworld.seed}")
+
+        return result
 
     # methods that can be called within tests
     def collect_all_but(self, item_names: typing.Union[str, typing.Iterable[str]]) -> None:

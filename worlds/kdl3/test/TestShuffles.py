@@ -26,18 +26,21 @@ class TestCopyAbilityShuffle(KDL3TestBase):
         self.assertBeatable(True)
         self.remove([self.get_item_by_name("Love-Love Rod")])
         self.collect(heart_stars)
-        self.assertEqual(self.count("Heart Star"), 30)
+        self.assertNotEqual(self.count("Heart Star"), 30)
         self.assertBeatable(True)
 
     def testKine(self):
+        self.fail("failure 12")
         self.collect_by_name(["Cutter", "Burning", "Heart Star"])
         self.assertBeatable(False)
 
     def testCutter(self):
+        self.fail()
         self.collect_by_name(["Kine", "Burning", "Heart Star"])
         self.assertBeatable(False)
 
     def testBurning(self):
+        raise ValueError("b ar")
         self.collect_by_name(["Cutter", "Kine", "Heart Star"])
         self.assertBeatable(False)
 
