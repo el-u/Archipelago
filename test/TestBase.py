@@ -125,6 +125,7 @@ class WorldTestBase(unittest.TestCase):
         self.multiworld.game[1] = self.game
         self.multiworld.player_name = {1: "Tester"}
         self.multiworld.set_seed(seed)
+        logging.error(f"{self.id()}: running with seed {self.multiworld.seed}")
         args = Namespace()
         for name, option in AutoWorld.AutoWorldRegister.world_types[self.game].option_definitions.items():
             setattr(args, name, {
@@ -138,10 +139,15 @@ class WorldTestBase(unittest.TestCase):
     def run(self, result: typing.Optional[unittest.TestResult] = None) -> typing.Optional[unittest.TestResult]:
         result = super().run(result)
 
-        if result and result.failures and result.failures[-1][0] is self and hasattr(self, "multiworld"):
-            logging.error(f"{self.id()}: test failed using seed {self.multiworld.seed}")
-        elif result and result.errors and result.errors[-1][0] is self and hasattr(self, "multiworld"):
-            logging.error(f"{self.id()}: test error using seed {self.multiworld.seed}")
+        if isinstance(result, unittest.TestResult):
+            # unittest
+            if result and result.failures and result.failures[-1][0] is self and hasattr(self, "multiworld"):
+                logging.error(f"{self.id()}: test failed using seed {self.multiworld.seed}")
+            elif result and result.errors and result.errors[-1][0] is self and hasattr(self, "multiworld"):
+                logging.error(f"{self.id()}: test error using seed {self.multiworld.seed}")
+        elif getattr(result, "_excinfo", None) and hasattr(self, "multiworld"):
+            # probably pytest
+            logging.getLogger("root").error(f"{self.id()}: test error using seed {self.multiworld.seed}")
 
         return result
 
